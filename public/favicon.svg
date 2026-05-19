@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HiddenGem Explorer">
+  <rect width="64" height="64" rx="12" fill="#162521"/>
+  <path d="M14 45 26 20l9 18 6-10 9 17H14Z" fill="#f4d35e"/>
+  <path d="M20 45h30" stroke="#fafcf7" stroke-width="4" stroke-linecap="round"/>
+</svg>
