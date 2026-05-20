@@ -223,6 +223,7 @@ select {
 
 .card-media {
   position: relative;
+  overflow: hidden;
   margin: 0;
   background: #dfe7dc;
 }
@@ -232,6 +233,13 @@ select {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
+  transition: transform 280ms ease, filter 280ms ease;
+}
+
+.destination-card:hover .card-media img,
+.destination-card:focus-within .card-media img {
+  filter: saturate(1.08) contrast(1.04);
+  transform: scale(1.1);
 }
 
 .card-media figcaption {
