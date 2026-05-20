@@ -331,6 +331,54 @@ dd {
   text-decoration: none;
 }
 
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.pagination button {
+  min-width: 44px;
+  min-height: 42px;
+  border: 1px solid #c9d8c3;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f332d;
+  cursor: pointer;
+  font-weight: 800;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.pagination button:hover:not(:disabled),
+.pagination button.active {
+  border-color: #2d6b40;
+  background: #2d6b40;
+  color: #ffffff;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.page-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pagination p {
+  flex-basis: 100%;
+  color: #52645d;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 .source-section {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);

@@ -13,6 +13,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { destinations, type Destination } from './data/destinations'
 
+const itemsPerPage = 6
 const categories = ['Semua', ...Array.from(new Set(destinations.map((item) => item.category)))]
 const regions = ['Semua', ...Array.from(new Set(destinations.map((item) => item.region)))]
 
@@ -27,6 +28,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('Semua')
   const [region, setRegion] = useState('Semua')
+  const [page, setPage] = useState(1)
 
   const filteredDestinations = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -43,6 +45,13 @@ function App() {
       return matchesQuery && matchesCategory && matchesRegion
     })
   }, [category, query, region])
+
+  const totalPages = Math.max(1, Math.ceil(filteredDestinations.length / itemsPerPage))
+  const currentPage = Math.min(page, totalPages)
+  const paginatedDestinations = filteredDestinations.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  )
 
   return (
     <main>
@@ -88,14 +97,23 @@ function App() {
           <input
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setPage(1)
+            }}
             placeholder="Cari tempat, wilayah, atau cerita"
           />
         </label>
         <label className="select-box">
           <Filter size={18} aria-hidden="true" />
           <span className="sr-only">Filter kategori</span>
-          <select value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select
+            value={category}
+            onChange={(event) => {
+              setCategory(event.target.value)
+              setPage(1)
+            }}
+          >
             {categories.map((item) => (
               <option key={item}>{item}</option>
             ))}
@@ -104,7 +122,13 @@ function App() {
         <label className="select-box">
           <MapPin size={18} aria-hidden="true" />
           <span className="sr-only">Filter wilayah</span>
-          <select value={region} onChange={(event) => setRegion(event.target.value)}>
+          <select
+            value={region}
+            onChange={(event) => {
+              setRegion(event.target.value)
+              setPage(1)
+            }}
+          >
             {regions.map((item) => (
               <option key={item}>{item}</option>
             ))}
@@ -123,7 +147,7 @@ function App() {
         </div>
 
         <div className="destination-grid">
-          {filteredDestinations.map((destination) => {
+          {paginatedDestinations.map((destination) => {
             const Icon = categoryIcons[destination.category]
 
             return (
@@ -169,6 +193,39 @@ function App() {
             )
           })}
         </div>
+
+        <nav className="pagination" aria-label="Navigasi halaman destinasi">
+          <button
+            type="button"
+            onClick={() => setPage((activePage) => Math.max(1, activePage - 1))}
+            disabled={currentPage === 1}
+          >
+            Sebelumnya
+          </button>
+          <div className="page-buttons">
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+              <button
+                type="button"
+                className={pageNumber === currentPage ? 'active' : ''}
+                aria-current={pageNumber === currentPage ? 'page' : undefined}
+                key={pageNumber}
+                onClick={() => setPage(pageNumber)}
+              >
+                {pageNumber}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setPage((activePage) => Math.min(totalPages, activePage + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Berikutnya
+          </button>
+          <p>
+            Menampilkan {paginatedDestinations.length} dari {filteredDestinations.length} destinasi
+          </p>
+        </nav>
       </section>
 
       <section id="sources" className="source-section" aria-labelledby="source-title">
