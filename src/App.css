@@ -213,12 +213,56 @@ select {
 .destination-card {
   display: flex;
   flex-direction: column;
-  min-height: 430px;
+  min-height: 570px;
+  overflow: hidden;
   border: 1px solid #dfe7dc;
   border-radius: 8px;
   background: #ffffff;
-  padding: 18px;
   box-shadow: 0 18px 46px rgba(32, 48, 40, 0.08);
+}
+
+.card-media {
+  position: relative;
+  margin: 0;
+  background: #dfe7dc;
+}
+
+.card-media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.card-media figcaption {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 20px);
+  border-radius: 6px;
+  background: rgba(12, 35, 33, 0.76);
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 5px 8px;
+}
+
+.card-media figcaption a {
+  color: #f4d35e;
+  text-decoration: none;
+}
+
+.destination-card > :not(.card-media) {
+  margin-right: 18px;
+  margin-left: 18px;
+}
+
+.destination-card .card-topline {
+  margin-top: 18px;
+}
+
+.destination-card .source-link {
+  margin-bottom: 18px;
 }
 
 .category-pill,

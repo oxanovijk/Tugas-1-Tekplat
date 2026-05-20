@@ -128,6 +128,16 @@ function App() {
 
             return (
               <article className="destination-card" key={destination.name}>
+                <figure className="card-media">
+                  <img
+                    src={destination.imageUrl}
+                    alt={destination.imageAlt}
+                    loading="lazy"
+                  />
+                  <figcaption>
+                    Foto: <a href={destination.imageSourceUrl} target="_blank">{destination.imageCredit}</a>
+                  </figcaption>
+                </figure>
                 <div className="card-topline">
                   <span className="category-pill">
                     <Icon size={16} aria-hidden="true" />

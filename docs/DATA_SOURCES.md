@@ -6,6 +6,7 @@ Data awal di repository ini adalah development seed, bukan dataset produksi. Tuj
 
 - Deskripsi destinasi ditulis mandiri, bukan hasil copy-paste dari blog travel.
 - Setiap destinasi memiliki `sourceName` dan `sourceUrl`.
+- Setiap foto destinasi memiliki `imageCredit` dan `imageSourceUrl`.
 - Label `hidden gem` dipakai sebagai kurasi platform, bukan klaim objektif bahwa destinasi tidak dikenal publik.
 - Data produksi perlu verifikasi manusia untuk lokasi, akses, jam operasional, keamanan, dan izin penggunaan foto.
 
@@ -16,6 +17,7 @@ Data awal di repository ini adalah development seed, bukan dataset produksi. Tuj
 | OpenTripMap | POI wisata, kategori, koordinat, dan ringkasan destinasi | Cocok untuk integrasi API eksternal pada bonus. |
 | OpenStreetMap | Lokasi, koordinat, dan pencarian tempat | Cocok untuk validasi lokasi dan link peta. |
 | Wikimedia API | Ringkasan sejarah/budaya dan metadata konten terbuka | Perlu atribusi sesuai lisensi. |
+| Wikimedia Commons | Foto destinasi dan media terbuka | Wajib menyertakan kredit/sumber file. |
 | Open data pemerintah | Dataset pariwisata daerah | Format dan kelengkapan data bergantung tiap instansi. |
 
 ## Referensi API
@@ -24,6 +26,7 @@ Data awal di repository ini adalah development seed, bukan dataset produksi. Tuj
 - OpenStreetMap: https://www.openstreetmap.org/
 - Nominatim: https://nominatim.org/release-docs/4.3/api/Overview/
 - Wikimedia API Catalog: https://api.wikimedia.org/wiki/API_catalog
+- Wikimedia Commons: https://commons.wikimedia.org/
 - Portal Satu Data Indonesia: https://data.go.id/
 
 ## Rencana Integrasi Bonus
