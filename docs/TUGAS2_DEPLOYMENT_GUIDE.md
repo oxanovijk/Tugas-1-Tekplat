@@ -14,6 +14,12 @@ Gunakan dua folder berbeda:
 
 Alasan: folder `/www/wwwroot/hiddengem.stei.my.id` biasanya dibuat oleh aaPanel sebagai web root, bukan repository Git. Karena itu, command `git pull origin main` dijalankan di folder repo `/home/ubuntu/Tugas-1-Tekplat`, bukan di folder web root aaPanel.
 
+Catatan penting untuk MySQL aaPanel:
+
+- Pada VM ini, MySQL aaPanel terdeteksi berjalan dengan socket `/tmp/mysql.sock`.
+- Jika command `mysql -u ... -p` gagal dengan error socket `/run/mysqld/mysqld.sock`, gunakan tambahan `--socket=/tmp/mysql.sock`.
+- Jika user database tugas sudah berhasil dibuat, tidak perlu reset password root lagi. Lanjut dari pengecekan login user database dan import schema.
+
 ```bash
 export REPO_DIR=/home/ubuntu/Tugas-1-Tekplat
 export WEB_ROOT=/www/wwwroot/hiddengem.stei.my.id
@@ -63,30 +69,73 @@ Screenshot yang perlu diambil:
 
 ## 2. Buat Database di aaPanel
 
-1. Buka aaPanel.
-2. Masuk menu `Databases`.
-3. Buat database:
-   - Database name: `hiddengem_db`
-   - Username: `hiddengem_user`
-   - Password: simpan password yang dibuat aaPanel.
+Jika database dan user tugas sudah dibuat lewat terminal, bagian ini boleh dianggap selesai. Data final yang dibutuhkan backend adalah:
+
+- Database name: `hiddengem_db`
+- Database user: `hiddengem_user`
+- Database password: password yang sudah Anda buat untuk user `hiddengem_user`
+
+Jika belum dibuat, buat dari MySQL root:
+
+```bash
+mysql --socket=/tmp/mysql.sock -u root -p
+```
+
+Lalu jalankan di prompt `mysql>`:
+
+```sql
+CREATE DATABASE IF NOT EXISTS hiddengem_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'hiddengem_user'@'localhost' IDENTIFIED BY 'ISI_PASSWORD_DATABASE_TUGAS';
+ALTER USER 'hiddengem_user'@'localhost' IDENTIFIED BY 'ISI_PASSWORD_DATABASE_TUGAS';
+GRANT ALL PRIVILEGES ON hiddengem_db.* TO 'hiddengem_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Ganti `ISI_PASSWORD_DATABASE_TUGAS` dengan password yang ingin dipakai di file `.env`.
 
 Screenshot yang perlu diambil:
 
-- Halaman aaPanel yang menunjukkan database `hiddengem_db` sudah dibuat.
+- Terminal atau aaPanel yang menunjukkan database `hiddengem_db` sudah tersedia.
+- Jangan screenshot password database.
 
 ---
 
-## 3. Import Schema dan Seed Database
+## 3. Test Login User Database
 
-Jalankan dari folder repository, bukan dari web root:
+Sebelum import schema, pastikan user database tugas bisa login:
+
+```bash
+mysql --socket=/tmp/mysql.sock -u hiddengem_user -p -e "SHOW DATABASES;"
+```
+
+Masukkan password user `hiddengem_user` yang sudah dibuat.
+
+Jika berhasil, output akan menampilkan daftar database termasuk `hiddengem_db`.
+
+Screenshot yang perlu diambil:
+
+- Output `SHOW DATABASES;` yang memperlihatkan `hiddengem_db`.
+
+---
+
+## 4. Import Schema dan Seed Database
+
+Jalankan dari folder repository, bukan dari web root. Karena MySQL aaPanel memakai socket `/tmp/mysql.sock`, gunakan command berikut:
 
 ```bash
 cd /home/ubuntu/Tugas-1-Tekplat
-mysql -u hiddengem_user -p hiddengem_db < api/schema.sql
-mysql -u hiddengem_user -p hiddengem_db < api/seed.sql
+mysql --socket=/tmp/mysql.sock -u hiddengem_user -p hiddengem_db < api/schema.sql
+mysql --socket=/tmp/mysql.sock -u hiddengem_user -p hiddengem_db < api/seed.sql
 ```
 
-Masukkan password database saat diminta.
+Masukkan password user `hiddengem_user` saat diminta.
+
+Catatan:
+
+- Jika import berhasil, biasanya terminal tidak menampilkan output apa pun dan langsung kembali ke prompt.
+- Jika muncul error `Table already exists`, itu berarti schema pernah di-import. Anda bisa lanjut jika tabel sudah ada.
+- File `api/seed.sql` juga berisi data demo provider, tourist, dan paket travel dummy. Seed ini dibuat idempotent sehingga aman dijalankan ulang untuk mengisi paket tanpa membuat duplikasi.
 
 Screenshot yang perlu diambil:
 
@@ -95,7 +144,38 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 4. Siapkan Folder Upload
+## 5. Cek Tabel Database Setelah Import
+
+```bash
+mysql --socket=/tmp/mysql.sock -u hiddengem_user -p hiddengem_db -e "SHOW TABLES;"
+```
+
+Output minimal yang diharapkan:
+
+```text
+users
+destinations
+travel_packages
+package_media
+trip_requests
+```
+
+Untuk memastikan paket demo sudah masuk:
+
+```bash
+mysql --socket=/tmp/mysql.sock -u hiddengem_user -p hiddengem_db -e "SELECT d.name AS destination, COUNT(p.id) AS total_packages FROM destinations d LEFT JOIN travel_packages p ON p.destination_id = d.id GROUP BY d.id, d.name;"
+```
+
+Setiap destinasi seed seharusnya memiliki minimal 2 paket demo.
+
+Screenshot yang perlu diambil:
+
+- Output `SHOW TABLES;` yang memperlihatkan tabel-tabel di atas.
+- Output jumlah paket per destinasi.
+
+---
+
+## 6. Siapkan Folder Upload
 
 ```bash
 sudo mkdir -p /www/wwwroot/hiddengem.stei.my.id/uploads
@@ -107,7 +187,7 @@ Folder ini dipakai backend untuk menyimpan foto paket.
 
 ---
 
-## 5. Konfigurasi Environment Backend
+## 7. Konfigurasi Environment Backend
 
 ```bash
 cd /home/ubuntu/Tugas-1-Tekplat/api
@@ -125,7 +205,7 @@ APP_ORIGIN=https://hiddengem.stei.my.id
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=hiddengem_user
-DB_PASSWORD=password_dari_aapanel
+DB_PASSWORD=password_user_hiddengem_yang_sudah_dibuat
 DB_NAME=hiddengem_db
 
 JWT_SECRET=ganti_dengan_string_panjang_random
@@ -136,6 +216,7 @@ PUBLIC_UPLOAD_BASE_URL=/uploads
 Catatan:
 
 - `DB_PASSWORD` harus sama dengan password database di aaPanel.
+- Jika Anda membuat user database lewat terminal, gunakan password user `hiddengem_user`, bukan password root MySQL.
 - `JWT_SECRET` bebas, tetapi harus panjang dan sulit ditebak.
 - Jangan upload file `.env` ke GitHub.
 
@@ -145,7 +226,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 6. Install dan Build Backend
+## 8. Install dan Build Backend
 
 ```bash
 cd /home/ubuntu/Tugas-1-Tekplat/api
@@ -160,7 +241,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 7. Buat Superadmin
+## 9. Buat Superadmin
 
 Jalankan dari folder `api`:
 
@@ -190,7 +271,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 8. Jalankan Backend dengan PM2
+## 10. Jalankan Backend dengan PM2
 
 Jika PM2 belum ada:
 
@@ -226,7 +307,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 9. Build Frontend dari Repository
+## 11. Build Frontend dari Repository
 
 Jalankan dari folder repo:
 
@@ -242,7 +323,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 10. Copy Hasil Build Frontend ke Web Root aaPanel
+## 12. Copy Hasil Build Frontend ke Web Root aaPanel
 
 Pastikan web root ada:
 
@@ -276,7 +357,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 11. Konfigurasi Nginx Reverse Proxy di aaPanel
+## 13. Konfigurasi Nginx Reverse Proxy di aaPanel
 
 Di aaPanel, buka site `hiddengem.stei.my.id`, lalu edit konfigurasi Nginx. Tambahkan atau pastikan blok berikut ada di dalam `server { ... }`:
 
@@ -326,7 +407,7 @@ Screenshot yang perlu diambil:
 
 ---
 
-## 12. Uji Public URL
+## 14. Uji Public URL
 
 Buka:
 
@@ -358,7 +439,7 @@ Screenshot laporan:
 
 ---
 
-## 13. Alur Update Setelah Ada Perubahan Kode Baru
+## 15. Alur Update Setelah Ada Perubahan Kode Baru
 
 Jika nanti ada update dari GitHub, jalankan urutan ini:
 
@@ -391,7 +472,7 @@ Urutan ini adalah urutan final untuk update:
 
 ---
 
-## 14. Docker Bonus Opsional
+## 16. Docker Bonus Opsional
 
 Repo sudah menyiapkan:
 
