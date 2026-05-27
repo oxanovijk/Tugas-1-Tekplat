@@ -2,6 +2,72 @@ main {
   min-height: 100vh;
 }
 
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 10px clamp(20px, 6vw, 88px);
+  border-bottom: 1px solid #dfe7dc;
+  background: rgba(250, 252, 247, 0.96);
+  backdrop-filter: blur(14px);
+}
+
+.top-nav nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.top-nav button,
+.brand-button,
+.text-action {
+  border: 0;
+  background: transparent;
+  color: #1f332d;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.top-nav nav button {
+  min-height: 38px;
+  border-radius: 8px;
+  padding: 0 12px;
+}
+
+.top-nav nav button:hover,
+.top-nav nav button.active {
+  background: #e8f2e5;
+  color: #255f37;
+}
+
+.brand-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 999px;
+  background: #fff5cf;
+  color: #6f5512;
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 0 10px;
+}
+
 .hero-section {
   display: grid;
   min-height: 84vh;
@@ -83,6 +149,13 @@ h3 {
   border-radius: 8px;
   font-weight: 800;
   text-decoration: none;
+}
+
+button.primary-link,
+button.secondary-link {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
 }
 
 .primary-link,
@@ -169,7 +242,8 @@ h3 {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   border: 0;
   background: transparent;
@@ -180,6 +254,11 @@ select {
 
 select {
   cursor: pointer;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
 }
 
 .destination-section {
@@ -395,6 +474,257 @@ dd {
   padding: 0 14px;
 }
 
+.app-section {
+  min-height: calc(100vh - 64px);
+  padding: 64px clamp(20px, 6vw, 88px);
+  background: #fafcf7;
+}
+
+.auth-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(320px, 0.6fr);
+  align-items: start;
+  gap: 32px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.7fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+
+.dashboard-grid > .section-heading,
+.dashboard-grid > .notice {
+  grid-column: 1 / -1;
+}
+
+.form-panel,
+.panel-block,
+.package-card,
+.request-item {
+  border: 1px solid #dfe7dc;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 18px 46px rgba(32, 48, 40, 0.08);
+}
+
+.form-panel,
+.panel-block {
+  padding: 22px;
+}
+
+.form-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.form-panel label,
+.inline-form label {
+  display: grid;
+  gap: 7px;
+  color: #25342f;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.form-panel input,
+.form-panel select,
+.form-panel textarea,
+.inline-form input,
+.inline-form textarea {
+  min-height: 44px;
+  border: 1px solid #c9d8c3;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: #2d6b40;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  padding: 0 16px;
+}
+
+.primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.text-action {
+  min-height: 36px;
+  justify-self: start;
+  color: #2d6b40;
+}
+
+.notice {
+  border-radius: 8px;
+  font-weight: 800;
+  padding: 12px 14px;
+}
+
+.notice.error {
+  background: #fde8e8;
+  color: #8a1c1c;
+}
+
+.notice.warning {
+  background: #fff5cf;
+  color: #6f5512;
+}
+
+.notice.success {
+  background: #e8f2e5;
+  color: #255f37;
+}
+
+.muted {
+  color: #52645d;
+  font-weight: 700;
+}
+
+.table-list,
+.request-list {
+  display: grid;
+  gap: 10px;
+}
+
+.table-row,
+.request-item {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto minmax(130px, auto);
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+
+.table-row > div:first-child,
+.request-item > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.table-row span,
+.request-item span,
+.request-item p {
+  color: #52645d;
+  margin: 0;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.row-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  border: 1px solid #c9d8c3;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f332d;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0 10px;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  border-radius: 999px;
+  background: #e8f2e5;
+  color: #255f37;
+  font-size: 0.78rem;
+  font-weight: 900;
+  padding: 0 10px;
+}
+
+.status-chip.pending {
+  background: #fff5cf;
+  color: #6f5512;
+}
+
+.status-chip.rejected {
+  background: #fde8e8;
+  color: #8a1c1c;
+}
+
+.status-chip.accepted,
+.status-chip.approved,
+.status-chip.completed {
+  background: #e8f2e5;
+  color: #255f37;
+}
+
+.package-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.package-grid.compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.package-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 430px;
+}
+
+.package-card > :not(.card-media) {
+  margin-right: 18px;
+  margin-left: 18px;
+}
+
+.package-card .card-topline {
+  margin-top: 18px;
+}
+
+.package-card .primary-action,
+.package-card .inline-form {
+  margin-bottom: 18px;
+}
+
+.inline-form {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.request-item {
+  grid-template-columns: minmax(180px, 1fr) auto;
+}
+
+.request-item .row-actions {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -407,7 +737,9 @@ dd {
 @media (max-width: 920px) {
   .hero-section,
   .source-section,
-  .toolbar {
+  .toolbar,
+  .auth-section,
+  .dashboard-grid {
     grid-template-columns: 1fr;
   }
 
@@ -425,7 +757,21 @@ dd {
     grid-template-columns: 1fr;
   }
 
+  .package-grid,
+  .package-grid.compact,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
   .destination-card {
     min-height: auto;
+  }
+
+  .table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .row-actions {
+    justify-content: flex-start;
   }
 }

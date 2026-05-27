@@ -1,0 +1,48 @@
+SET NAMES utf8mb4;
+
+INSERT INTO destinations
+  (name, city, province, category, short_description, best_time, sustainability_note, image_url, external_title)
+VALUES
+  ('Pantai Wediombo', 'Gunungkidul', 'DI Yogyakarta', 'Pantai',
+   'Pantai berkarang dengan kolam alami dan garis pantai yang lebih tenang dibanding pantai populer di sekitarnya.',
+   'April-Oktober',
+   'Kunjungan dibatasi pada jalur aman agar ekosistem karang dan kolam alami tidak rusak.',
+   'https://upload.wikimedia.org/wikipedia/commons/9/9d/Wediombo_Beach%2C_Gunungkidul.jpg',
+   'Pantai Wediombo'),
+  ('Air Terjun Tumpak Sewu', 'Lumajang', 'Jawa Timur', 'Air Terjun',
+   'Air terjun bertingkat dengan panorama tebing melingkar yang cocok untuk wisata alam berpemandu.',
+   'Mei-September',
+   'Wisata berpemandu membantu menjaga keselamatan dan mengurangi risiko kerusakan jalur turun.',
+   'https://upload.wikimedia.org/wikipedia/commons/9/9b/Tumpak_Sewu_Waterfall.jpg',
+   'Tumpak Sewu'),
+  ('Pulau Padar', 'Manggarai Barat', 'Nusa Tenggara Timur', 'Pulau',
+   'Pulau dengan punggungan bukit dan teluk berlapis yang menjadi titik pandang utama kawasan Labuan Bajo.',
+   'April-November',
+   'Pembatasan jalur trekking membantu mencegah erosi dan menjaga vegetasi savana.',
+   'https://upload.wikimedia.org/wikipedia/commons/7/78/Padar_Island.jpg',
+   'Pulau Padar'),
+  ('Desa Wae Rebo', 'Manggarai', 'Nusa Tenggara Timur', 'Desa Budaya',
+   'Desa adat di pegunungan dengan rumah Mbaru Niang dan pengalaman budaya lokal yang kuat.',
+   'Mei-Oktober',
+   'Model homestay lokal memastikan manfaat ekonomi langsung diterima komunitas adat.',
+   'https://upload.wikimedia.org/wikipedia/commons/0/0f/Wae_Rebo_Village.jpg',
+   'Wae Rebo'),
+  ('Danau Weekuri', 'Sumba Barat Daya', 'Nusa Tenggara Timur', 'Danau',
+   'Laguna air asin jernih dengan suasana tenang dan tebing karang rendah.',
+   'Mei-Oktober',
+   'Pengelolaan sampah dan pembatasan aktivitas berenang penting untuk menjaga kejernihan laguna.',
+   'https://upload.wikimedia.org/wikipedia/commons/0/0f/Lake_Weekuri.jpg',
+   'Danau Weekuri'),
+  ('Kampung Naga', 'Tasikmalaya', 'Jawa Barat', 'Desa Budaya',
+   'Kampung adat Sunda yang mempertahankan tata ruang, arsitektur, dan praktik budaya tradisional.',
+   'Sepanjang tahun',
+   'Kunjungan perlu mengikuti aturan adat dan kapasitas lokal agar tidak mengganggu aktivitas warga.',
+   'https://upload.wikimedia.org/wikipedia/commons/5/53/Kampung_Naga.jpg',
+   'Kampung Naga')
+ON DUPLICATE KEY UPDATE
+  category = VALUES(category),
+  short_description = VALUES(short_description),
+  best_time = VALUES(best_time),
+  sustainability_note = VALUES(sustainability_note),
+  image_url = VALUES(image_url),
+  external_title = VALUES(external_title);

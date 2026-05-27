@@ -1,28 +1,30 @@
 # HiddenGem Explorer
 
-HiddenGem Explorer adalah platform sederhana untuk kurasi destinasi wisata lokal yang bernilai alam, budaya, atau sejarah. Repository ini disiapkan untuk Tugas 1 II2210 Teknologi Platform dengan fokus pada frontend, deployment, dokumentasi instalasi, dan akses publik melalui tunnel.
+HiddenGem Explorer adalah platform katalog destinasi dan request perjalanan untuk II2210 Tugas 2. Konsepnya mengikuti `docs/TUGAS2_IMPLEMENTATION_PLAN.md`: penyedia jasa travel membuat paket untuk destinasi tertentu, turis mengajukan minat perjalanan, dan superadmin menyetujui akun penyedia sebelum paket dapat dibuat.
 
-## Kesesuaian Tugas
+## Kesesuaian Tugas 2
 
 | Butir tugas | Implementasi repo |
 | --- | --- |
-| Tema | Tourism & Culture Exchange |
-| Frontend | Vite + React + TypeScript |
-| Backend | Belum dikerjakan pada setup awal; kandidat bonus |
-| Database | Belum dikerjakan pada setup awal; kandidat bonus self-managed di VPS |
-| API eksternal | Disiapkan sebagai integrasi berikutnya: OpenTripMap, OpenStreetMap, Wikimedia |
-| Akses publik | Ditargetkan melalui aaPanel + Cloudflare Tunnel |
-| Dokumentasi | `docs/INSTALLATION.md`, `docs/DATA_SOURCES.md`, `docs/SUBMISSION_CHECKLIST.md` |
+| Authentication & access control | JWT login/register dengan role `superadmin`, `provider`, `tourist` |
+| Approval role | Provider baru berstatus `pending` sampai disetujui superadmin |
+| Backend/server | Express API di folder `api/` |
+| Self-managed database | Skema MariaDB/MySQL di `api/schema.sql` dan seed di `api/seed.sql` |
+| Data non-teks | Upload foto paket dengan metadata file dan `image_blob` di database |
+| Interaksi produsen-konsumen | Provider membuat paket, tourist mengirim trip request, provider mengubah status request |
+| External/public API | Endpoint `/api/external/wiki-summary` ke Wikipedia REST API |
+| Public access | Ditargetkan via aaPanel/Nginx/Cloudflare pada domain `hiddengem.stei.my.id` |
+| Docker bonus | `Dockerfile`, `api/Dockerfile`, dan `docker-compose.yml` tersedia sebagai opsi deployment bonus |
 
 ## Tech Stack
 
-- Vite untuk build frontend statis yang ringan.
-- React + TypeScript untuk komponen UI dan typing data destinasi.
-- lucide-react untuk ikon UI.
-- aaPanel untuk deployment di VM/VPS sesuai panduan tugas.
-- Cloudflare Tunnel untuk akses publik.
+- Frontend: Vite, React, TypeScript, lucide-react.
+- Backend: Node.js, Express, TypeScript, JWT, bcrypt, multer.
+- Database: MariaDB/MySQL self-managed.
+- Deployment target: Ubuntu VM, aaPanel, Nginx, PM2.
+- Optional Docker: MariaDB, Express API, dan Nginx frontend container.
 
-## Menjalankan Lokal
+## Menjalankan Frontend Lokal
 
 ```bash
 npm install
@@ -35,44 +37,45 @@ Build production:
 npm run build
 ```
 
-Preview hasil build:
+## Menjalankan Backend Lokal
 
 ```bash
-npm run preview
+cd api
+npm install
+cp .env.example .env
+npm run build
+npm start
 ```
 
-## Struktur Folder
+Backend membutuhkan database MariaDB/MySQL yang sudah diisi `api/schema.sql` dan `api/seed.sql`.
+
+## Struktur Folder Utama
 
 ```text
 .
+├── api/
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── src/
 ├── docs/
-│   ├── DATA_SOURCES.md
-│   ├── INSTALLATION.md
-│   └── SUBMISSION_CHECKLIST.md
-├── public/
+│   ├── TUGAS2_DEPLOYMENT_GUIDE.md
+│   └── TUGAS2_IMPLEMENTATION_PLAN.md
 ├── src/
+│   ├── api/
 │   ├── data/
-│   │   └── destinations.ts
 │   ├── App.css
-│   ├── App.tsx
-│   ├── index.css
-│   └── main.tsx
-├── .env.example
-├── index.html
-├── package.json
-└── vite.config.ts
+│   └── App.tsx
+└── package.json
 ```
 
-## Status Data
+## Deployment
 
-Data destinasi pada `src/data/destinations.ts` adalah development seed untuk demonstrasi UI. Deskripsi ditulis mandiri dan perlu diverifikasi ulang sebelum digunakan sebagai data produksi.
+Panduan deployment VM/aaPanel ada di `docs/TUGAS2_DEPLOYMENT_GUIDE.md`.
 
-## Deployment Ringkas
+## Docker Opsional
 
-1. Build aplikasi dengan `npm run build`.
-2. Pindahkan isi folder `dist/` ke folder website aaPanel, misalnya `/www/wwwroot/hiddengem-explorer/`.
-3. Atur site di aaPanel sebagai static site.
-4. Buat Cloudflare Tunnel public hostname ke port/site yang digunakan.
-5. Ambil screenshot URL publik dan tampilan antarmuka.
+```bash
+docker compose up --build
+```
 
-Panduan detail ada di `docs/INSTALLATION.md`.
+Frontend akan tersedia di `http://localhost:8080`. Setelah container database pertama kali hidup, buat superadmin dengan masuk ke container API atau jalankan script serupa dengan environment yang sama.
