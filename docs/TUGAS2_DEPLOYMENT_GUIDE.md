@@ -1,43 +1,116 @@
-# Tugas 2 Deployment Guide - HiddenGem Explorer
+# Tugas 2 Deployment Guide Final - HiddenGem Explorer
 
-Dokumen ini mengikuti `docs/TUGAS2_IMPLEMENTATION_PLAN.md`. Bagian yang bisa dilakukan dari repo sudah diimplementasikan; bagian di bawah perlu dijalankan langsung di Ubuntu VM/aaPanel karena membutuhkan akses server, database, dan domain.
+Dokumen ini mengikuti `docs/TUGAS2_IMPLEMENTATION_PLAN.md` dan dibuat final agar tidak rancu antara folder repository dan folder website aaPanel.
 
-## 1. Pull Kode Terbaru di VM
+## Prinsip Deployment yang Dipakai
+
+Gunakan dua folder berbeda:
+
+| Kebutuhan | Path final | Fungsi |
+| --- | --- | --- |
+| Repository Git | `/home/ubuntu/Tugas-1-Tekplat` | Tempat `git pull`, `npm install`, dan `npm run build` |
+| Web root aaPanel | `/www/wwwroot/hiddengem.stei.my.id` | Tempat file frontend hasil build di-serve oleh Nginx |
+| Upload gambar | `/www/wwwroot/hiddengem.stei.my.id/uploads` | Tempat file gambar paket disimpan |
+
+Alasan: folder `/www/wwwroot/hiddengem.stei.my.id` biasanya dibuat oleh aaPanel sebagai web root, bukan repository Git. Karena itu, command `git pull origin main` dijalankan di folder repo `/home/ubuntu/Tugas-1-Tekplat`, bukan di folder web root aaPanel.
 
 ```bash
-cd /www/wwwroot/hiddengem.stei.my.id
+export REPO_DIR=/home/ubuntu/Tugas-1-Tekplat
+export WEB_ROOT=/www/wwwroot/hiddengem.stei.my.id
+```
+
+---
+
+## 1. Siapkan atau Update Repository di VM
+
+### 1.1 Cek apakah repo sudah ada
+
+```bash
+find /home/ubuntu /www/wwwroot -name ".git" -type d 2>/dev/null
+```
+
+Jika muncul:
+
+```text
+/home/ubuntu/Tugas-1-Tekplat/.git
+```
+
+maka repo sudah ada.
+
+### 1.2 Jika repo sudah ada
+
+```bash
+cd /home/ubuntu/Tugas-1-Tekplat
+git status
 git pull origin main
 ```
 
-Jika folder website di VM berbeda, masuk ke folder yang memang dipakai aaPanel untuk domain `hiddengem.stei.my.id`.
+### 1.3 Jika repo belum ada
+
+```bash
+cd /home/ubuntu
+git clone https://github.com/oxanovijk/Tugas-1-Tekplat.git
+cd Tugas-1-Tekplat
+git status
+```
+
+Screenshot yang perlu diambil:
+
+- Output `git status`.
+- Output `git pull origin main` atau `git clone`.
+
+---
 
 ## 2. Buat Database di aaPanel
 
 1. Buka aaPanel.
 2. Masuk menu `Databases`.
-3. Buat database, contoh:
+3. Buat database:
    - Database name: `hiddengem_db`
    - Username: `hiddengem_user`
    - Password: simpan password yang dibuat aaPanel.
 
-## 3. Import Schema dan Seed
+Screenshot yang perlu diambil:
 
-Jalankan dari terminal VM:
+- Halaman aaPanel yang menunjukkan database `hiddengem_db` sudah dibuat.
+
+---
+
+## 3. Import Schema dan Seed Database
+
+Jalankan dari folder repository, bukan dari web root:
 
 ```bash
+cd /home/ubuntu/Tugas-1-Tekplat
 mysql -u hiddengem_user -p hiddengem_db < api/schema.sql
 mysql -u hiddengem_user -p hiddengem_db < api/seed.sql
 ```
 
+Masukkan password database saat diminta.
+
 Screenshot yang perlu diambil:
 
-- Setelah command import schema berhasil tanpa error.
-- Setelah command import seed berhasil tanpa error.
+- Terminal setelah import `schema.sql` berhasil tanpa error.
+- Terminal setelah import `seed.sql` berhasil tanpa error.
 
-## 4. Konfigurasi Environment Backend
+---
+
+## 4. Siapkan Folder Upload
 
 ```bash
-cd /www/wwwroot/hiddengem.stei.my.id/api
+sudo mkdir -p /www/wwwroot/hiddengem.stei.my.id/uploads
+sudo chown -R ubuntu:ubuntu /www/wwwroot/hiddengem.stei.my.id/uploads
+sudo chmod -R 755 /www/wwwroot/hiddengem.stei.my.id/uploads
+```
+
+Folder ini dipakai backend untuk menyimpan foto paket.
+
+---
+
+## 5. Konfigurasi Environment Backend
+
+```bash
+cd /home/ubuntu/Tugas-1-Tekplat/api
 cp .env.example .env
 nano .env
 ```
@@ -60,10 +133,22 @@ UPLOAD_DIR=/www/wwwroot/hiddengem.stei.my.id/uploads
 PUBLIC_UPLOAD_BASE_URL=/uploads
 ```
 
-## 5. Install dan Build Backend
+Catatan:
+
+- `DB_PASSWORD` harus sama dengan password database di aaPanel.
+- `JWT_SECRET` bebas, tetapi harus panjang dan sulit ditebak.
+- Jangan upload file `.env` ke GitHub.
+
+Screenshot yang perlu diambil:
+
+- Tidak perlu screenshot isi `.env` jika ada password. Jika butuh bukti, screenshot command `ls -la api/.env` saja.
+
+---
+
+## 6. Install dan Build Backend
 
 ```bash
-cd /www/wwwroot/hiddengem.stei.my.id/api
+cd /home/ubuntu/Tugas-1-Tekplat/api
 npm install
 npm run build
 ```
@@ -71,29 +156,41 @@ npm run build
 Screenshot yang perlu diambil:
 
 - Output `npm install`.
-- Output `npm run build`.
+- Output `npm run build` yang sukses.
 
-## 6. Buat Superadmin
+---
 
-Default aman untuk percobaan:
+## 7. Buat Superadmin
+
+Jalankan dari folder `api`:
 
 ```bash
+cd /home/ubuntu/Tugas-1-Tekplat/api
 ADMIN_EMAIL=admin@hiddengem.local ADMIN_PASSWORD='Admin123!' npm run admin:create
 ```
 
-Jika shell VM sulit dengan tanda kutip, pakai:
+Jika shell VM bermasalah dengan tanda kutip, pakai:
 
 ```bash
+cd /home/ubuntu/Tugas-1-Tekplat/api
 export ADMIN_EMAIL=admin@hiddengem.local
 export ADMIN_PASSWORD=Admin123!
 npm run admin:create
+```
+
+Output yang diharapkan:
+
+```text
+Superadmin ready: admin@hiddengem.local
 ```
 
 Screenshot yang perlu diambil:
 
 - Output `Superadmin ready: admin@hiddengem.local`.
 
-## 7. Jalankan Backend dengan PM2
+---
+
+## 8. Jalankan Backend dengan PM2
 
 Jika PM2 belum ada:
 
@@ -101,16 +198,16 @@ Jika PM2 belum ada:
 sudo npm install -g pm2
 ```
 
-Jalankan API:
+Jalankan atau restart API:
 
 ```bash
-cd /www/wwwroot/hiddengem.stei.my.id/api
-pm2 start dist/server.js --name hiddengem-api
+cd /home/ubuntu/Tugas-1-Tekplat/api
+pm2 restart hiddengem-api --update-env || pm2 start dist/server.js --name hiddengem-api
 pm2 save
 pm2 status
 ```
 
-Tes API:
+Tes API lokal:
 
 ```bash
 curl http://127.0.0.1:3001/api/health
@@ -124,32 +221,64 @@ Output yang diharapkan:
 
 Screenshot yang perlu diambil:
 
-- `pm2 status`.
+- Output `pm2 status`.
 - Output `curl http://127.0.0.1:3001/api/health`.
 
-## 8. Build Frontend
+---
 
-Dari root project:
+## 9. Build Frontend dari Repository
+
+Jalankan dari folder repo:
 
 ```bash
-cd /www/wwwroot/hiddengem.stei.my.id
+cd /home/ubuntu/Tugas-1-Tekplat
 npm install
 npm run build
 ```
 
-Jika aaPanel site root menunjuk langsung ke folder domain, pindahkan isi `dist/` ke root web:
+Screenshot yang perlu diambil:
+
+- Output `npm run build` yang sukses.
+
+---
+
+## 10. Copy Hasil Build Frontend ke Web Root aaPanel
+
+Pastikan web root ada:
 
 ```bash
-cp -r dist/* /www/wwwroot/hiddengem.stei.my.id/
+sudo mkdir -p /www/wwwroot/hiddengem.stei.my.id
 ```
+
+Copy hasil build:
+
+```bash
+cd /home/ubuntu/Tugas-1-Tekplat
+sudo rsync -av --delete --exclude uploads dist/ /www/wwwroot/hiddengem.stei.my.id/
+```
+
+Jika `rsync` belum ada:
+
+```bash
+sudo apt install rsync -y
+sudo rsync -av --delete --exclude uploads dist/ /www/wwwroot/hiddengem.stei.my.id/
+```
+
+Kenapa memakai `rsync`:
+
+- Isi `dist/` menjadi isi public frontend.
+- File frontend lama yang sudah tidak dipakai dibersihkan.
+- Folder `uploads` tetap aman dan tidak terhapus.
 
 Screenshot yang perlu diambil:
 
-- Output `npm run build`.
+- Output `rsync` yang menunjukkan file berhasil dikirim ke web root.
 
-## 9. Nginx Reverse Proxy untuk API
+---
 
-Di aaPanel, buka site `hiddengem.stei.my.id`, lalu edit konfigurasi Nginx. Tambahkan blok ini di dalam `server { ... }`:
+## 11. Konfigurasi Nginx Reverse Proxy di aaPanel
+
+Di aaPanel, buka site `hiddengem.stei.my.id`, lalu edit konfigurasi Nginx. Tambahkan atau pastikan blok berikut ada di dalam `server { ... }`:
 
 ```nginx
 location /api/ {
@@ -170,48 +299,99 @@ location / {
 }
 ```
 
-Tes dan reload Nginx:
+Tes konfigurasi:
 
 ```bash
+sudo nginx -t
+```
+
+Reload Nginx:
+
+```bash
+sudo /etc/init.d/nginx reload
+```
+
+Jika reload gagal tetapi Nginx sebenarnya berjalan, gunakan:
+
+```bash
+sudo /etc/init.d/nginx restart
+```
+
+Atau gunakan tombol restart/reload Nginx dari aaPanel.
+
+Screenshot yang perlu diambil:
+
+- Konfigurasi Nginx yang menunjukkan blok `/api/`.
+- Output `sudo nginx -t`.
+
+---
+
+## 12. Uji Public URL
+
+Buka:
+
+```text
+https://hiddengem.stei.my.id
+https://hiddengem.stei.my.id/api/health
+```
+
+Jika frontend terbuka tetapi API gagal:
+
+```bash
+pm2 status
+curl http://127.0.0.1:3001/api/health
+sudo nginx -t
+```
+
+Jika API lokal berhasil tetapi public `/api/health` gagal, masalah biasanya ada di konfigurasi Nginx reverse proxy.
+
+Screenshot laporan:
+
+- Home public platform.
+- Public API health check.
+- Login/Register.
+- Dashboard Superadmin.
+- Dashboard Provider.
+- Halaman Paket.
+- Dashboard Tourist.
+- Request masuk di Provider.
+
+---
+
+## 13. Alur Update Setelah Ada Perubahan Kode Baru
+
+Jika nanti ada update dari GitHub, jalankan urutan ini:
+
+```bash
+cd /home/ubuntu/Tugas-1-Tekplat
+git pull origin main
+
+npm install
+npm run build
+
+cd api
+npm install
+npm run build
+pm2 restart hiddengem-api --update-env
+
+cd /home/ubuntu/Tugas-1-Tekplat
+sudo rsync -av --delete --exclude uploads dist/ /www/wwwroot/hiddengem.stei.my.id/
 sudo nginx -t
 sudo /etc/init.d/nginx reload
 ```
 
-Jika aaPanel Nginx tidak memakai service systemd, gunakan tombol reload/restart dari aaPanel.
+Urutan ini adalah urutan final untuk update:
 
-Screenshot yang perlu diambil:
+1. Pull kode di folder repo.
+2. Build frontend.
+3. Build backend.
+4. Restart backend.
+5. Copy frontend build ke web root.
+6. Test dan reload Nginx.
 
-- Konfigurasi reverse proxy `/api`.
-- Output `sudo nginx -t`.
+---
 
-## 10. Uji Public URL
-
-Buka:
-
-- `https://hiddengem.stei.my.id`
-- `https://hiddengem.stei.my.id/api/health`
-
-Alur uji:
-
-1. Login superadmin.
-2. Register provider baru.
-3. Approve provider dari dashboard superadmin.
-4. Login provider, buat paket dengan foto.
-5. Register/login tourist.
-6. Tourist request paket.
-7. Provider menerima/menolak request.
-
-Screenshot laporan:
-
-- Halaman Home.
-- Halaman Login/Register.
-- Dashboard Superadmin dengan provider pending/approved.
-- Dashboard Provider saat membuat paket.
-- Halaman Paket setelah foto paket muncul.
-- Dashboard Tourist setelah request dibuat.
-- Dashboard Provider setelah request masuk.
-
-## 11. Docker Bonus Opsional
+## 14. Docker Bonus Opsional
 
 Repo sudah menyiapkan:
 
@@ -222,19 +402,24 @@ Repo sudah menyiapkan:
 Uji lokal Docker:
 
 ```bash
+cd /home/ubuntu/Tugas-1-Tekplat
 docker compose up --build
 ```
 
 Setelah container aktif, buka:
 
-- `http://localhost:8080`
-- `http://localhost:8080/api/health`
+```text
+http://localhost:8080
+http://localhost:8080/api/health
+```
 
 Screenshot bonus:
 
 - Output `docker compose ps`.
 - Halaman frontend Docker.
 - Output API health check.
+
+---
 
 ## Referensi Teknis
 
