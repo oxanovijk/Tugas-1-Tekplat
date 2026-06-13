@@ -644,7 +644,7 @@ function AdminDashboard({ session, onViewChange }: { session: Session | null; on
               </div>
               <span className="status-pill">{roleLabel(user.role)}</span>
               <span className={`status-chip ${user.approvalStatus}`}>{statusLabel(user.approvalStatus)}</span>
-              {user.role === 'provider' ? (
+              {user.role === 'provider' && user.approvalStatus === 'pending' ? (
                 <div className="row-actions">
                   <button type="button" onClick={() => updateApproval(user.id, 'approved')}>
                     <CheckCircle2 size={16} aria-hidden="true" />
@@ -656,7 +656,7 @@ function AdminDashboard({ session, onViewChange }: { session: Session | null; on
                   </button>
                 </div>
               ) : (
-                <span>-</span>
+                <span className="approval-final">-</span>
               )}
             </article>
           ))}
